@@ -1,5 +1,12 @@
 #include "main.h"
 #include <stdarg.h>
+#include <stddef.h>  /* Include for NULL definition */
+#include <unistd.h>
+
+int _putchar(int c);
+int print_str(char *str);
+int print_number(int num);
+int print_number_recursive(int num);
 
 /**
  * _printf - Custom printf function
@@ -10,8 +17,6 @@ int _printf(const char *format, ...)
 {
     va_list args;
     int count = 0;
-    char *str;
-    int num;
 
     va_start(args, format);
 
@@ -23,38 +28,26 @@ int _printf(const char *format, ...)
             switch (*format)
             {
                 case 'c':
-                    count += putchar(va_arg(args, int));
+                    count += _putchar(va_arg(args, int));
                     break;
 
                 case 's':
-                    str = va_arg(args, char *);
-                    if (str == NULL)
-                        str = "(null)";
-                    while (*str != '\0')
-                    {
-                        count += putchar(*str);
-                        str++;
-                    }
+                    count += print_str(va_arg(args, char *));
                     break;
 
                 case 'd':
                 case 'i':
-                    num = va_arg(args, int);
-                    count += write_number(num);
-                    break;
-
-                case '%':
-                    count += putchar('%');
+                    count += print_number(va_arg(args, int));
                     break;
 
                 default:
-                    count += putchar('%');
-                    count += putchar(*format);
+                    count += _putchar('%');
+                    count += _putchar(*format);
             }
         }
         else
         {
-            count += putchar(*format);
+            count += _putchar(*format);
         }
 
         format++;
@@ -66,47 +59,80 @@ int _printf(const char *format, ...)
 }
 
 /**
- * write_number - Write an integer to standard output
- * @num: Integer to be written
+ * _putchar - Write a character to standard output
+ * @c: Character to be written
  * Return: Number of characters written
  */
-int write_number(int num)
+int _putchar(int c)
+{
+    return write(1, &c, 1);
+}
+
+/**
+ * print_str - Write a string to standard output
+ * @str: String to be written
+ * Return: Number of characters written
+ */
+int print_str(char *str)
 {
     int count = 0;
-    char digit;
 
-    // Handle negative numbers
-    if (num < 0)
-    {
-        count += putchar('-');
-        num = -num;
-    }
+    if (str == NULL)
+        str = "(null)";
 
-    // Write each digit to standard output
-    if (num == 0)
+    while (*str != '\0')
     {
-        count += putchar('0');
-    }
-    else
-    {
-        while (num > 0)
-        {
-            digit = '0' + (num % 10);
-            count += putchar(digit);
-            num /= 10;
-        }
+        count += _putchar(*str);
+        str++;
     }
 
     return count;
 }
 
 /**
- * putchar - Write a character to standard output
- * @c: Character to be written
- * Return: 1 (success), EOF (failure)
+ * print_number - Write an integer to standard output
+ * @num: Integer to be written
+ * Return: Number of characters written
  */
-int putchar(int c)
+int print_number(int num)
 {
-    return write(1, &c, 1);
+    int count = 0;
+
+    /* Handle negative numbers */
+    if (num < 0)
+    {
+        count += _putchar('-');
+        num = -num;
+    }
+
+    /* Write each digit to standard output */
+    if (num == 0)
+    {
+        count += _putchar('0');
+    }
+    else
+    {
+        count += print_number_recursive(num);
+    }
+
+    return count;
+}
+
+/**
+ * print_number_recursive - Helper function to recursively print digits
+ * @num: Integer to be written
+ * Return: Number of characters written
+ */
+int print_number_recursive(int num)
+{
+    int count = 0;
+
+    if (num != 0)
+    {
+        count += print_number_recursive(num / 10);
+        count += _putchar('0' + (num % 10));
+    }
+
+    return count;
 }
 
