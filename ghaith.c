@@ -11,6 +11,7 @@ int _printf(const char *format, ...)
 {
     va_list args;
     int count = 0;
+    char *str;
 
     va_start(args, format);
 
@@ -26,7 +27,10 @@ int _printf(const char *format, ...)
                     break;
 
                 case 's':
-                    count += write(1, va_arg(args, char *), 1);
+                    str = va_arg(args, char *);
+                    if (str == NULL)
+                        str = "(null)";
+                    count += write(1, str, 1);
                     break;
 
                 case '%':
